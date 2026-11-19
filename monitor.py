@@ -4,9 +4,10 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
-PROXY_URL = os.environ["PROXY_URL"]        # e.g., https://hashwatch.vercel.app/api/fetch
-PROXY_SECRET = os.environ["PROXY_SECRET"]  # Matches Vercel env var
-WEBHOOK_URL = os.environ["WEBHOOK_URL"]    # ntfy.sh now; your private Push API later
+PROXY_URL = os.environ["PROXY_URL"]
+PROXY_SECRET = os.environ["PROXY_SECRET"]
+WEBHOOK_URL = os.environ["WEBHOOK_URL"]
+PINGBOX_SECRET = os.environ["PINGBOX_SECRET"]
 
 STATE_FILE = "state.json"
 
@@ -16,13 +17,19 @@ def load_json(path, default):
             return json.load(f)
     return default
 
-def send_alert(title, message):
-    requests.post(
+def send_alert(title, message, url="/", topic="general"):
+    res = requests.post(
         WEBHOOK_URL,
-        data=message.encode("utf-8"),
-        headers={"Title": title, "Priority": "high"},
+        json={
+            "topic": topic,
+            "title": title,
+            "body": message,
+            "url": url
+        },
+        headers={"x-api-key": PINGBOX_SECRET},
         timeout=15
     )
+    res.raise_for_status()
 
 def fetch_page(url, use_proxy=True):
     if use_proxy:
@@ -48,6 +55,7 @@ def main():
         selector = target.get("selector", "body")
         keywords = target.get("keywords", [])
         use_proxy = target.get("use_proxy", True)
+        topic = target.get("topic", "general")
 
         print(f"Checking: {name}...", flush=True)
         try:
@@ -69,8 +77,8 @@ def main():
                 state[name] = current_hash
                 state_changed = True
 
-                msg = f"{name} updated!\nKeywords matched: {found}\nCheck: {url}"
-                send_alert(f"HashWatch: {name}", msg)
+                msg = f"{name} updated!\nKeywords matched: {found}"
+                send_alert(f"HashWatch: {name}", msg, url, topic)
             else:
                 print(f"  -> No changes for {name}.", flush=True)
 
