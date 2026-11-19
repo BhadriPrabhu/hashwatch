@@ -44,8 +44,18 @@ def fetch_page(url, use_proxy=True):
     res.raise_for_status()
     return res.text
 
+def fetch_targets():
+    targets_url = PROXY_URL.replace("/api/fetch", "/api/targets")
+    res = requests.get(
+        targets_url,
+        headers={"x-api-key": PROXY_SECRET},
+        timeout=15
+    )
+    res.raise_for_status()
+    return res.json()
+
 def main():
-    targets = load_json("targets.json", [])
+    targets = fetch_targets()
     state = load_json(STATE_FILE, {})
     state_changed = False
 
