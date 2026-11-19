@@ -29,6 +29,7 @@ jobs:
           PROXY_URL: ${{ secrets.PROXY_URL }}
           PROXY_SECRET: ${{ secrets.PROXY_SECRET }}
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          PINGBOX_SECRET: ${{ secrets.PINGBOX_SECRET }}
         run: python monitor.py
 
       - name: Commit updated state
