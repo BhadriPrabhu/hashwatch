@@ -3,7 +3,8 @@
     "name": "SIH 2026",
     "url": "https://www.sih.gov.in/",
     "selector": "body",
-    "keywords": ["shortlisted", "grand finale 2026", "results out","result"],
-    "use_proxy": true
+    "keywords": ["shortlisted", "grand finale 2026", "results out"],
+    "use_proxy": true,
+    "topic": "sih-alert"
   }
 ]
